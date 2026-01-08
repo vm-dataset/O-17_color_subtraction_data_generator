@@ -18,7 +18,7 @@ from PIL import Image, ImageDraw, ImageFont
 from core import BaseGenerator, TaskPair, ImageRenderer
 from core.video_utils import VideoGenerator
 from .config import TaskConfig
-from .prompts import get_prompt, get_rubric
+from .prompts import get_prompt
 
 
 class TaskGenerator(BaseGenerator):
@@ -56,13 +56,12 @@ class TaskGenerator(BaseGenerator):
         # Select prompt and rubric
         task_type = task_data.get("type", "default")
         prompt = get_prompt(task_type, task_data)
-        rubric = get_rubric(task_type)
         
         return TaskPair(
             task_id=task_id,
             domain=self.config.domain,
             prompt=prompt,
-            rubric=rubric,
+            
             first_image=first_image,
             final_image=final_image,
             ground_truth_video=video_path
