@@ -1,6 +1,6 @@
-# Subtractive Color Mixture Data Generator 🎨
+# Color Subtraction Data Generator 🎨
 
-A data generator for creating synthetic "Subtractive Color Mixture" generation tasks. This generator creates datasets where two colored circular balls move toward each other at the same speed until they completely merge. The overlapping region displays the subtractive color mixture of the original colors.
+A physics simulation data generator for **subtractive color mixing tasks**. This generator creates scenarios where two colored balls move toward each other and merge, requiring models to predict and animate the inverted additive color mixture (255 - normalized RGB sum) that results from their combination.
 
 ---
 
@@ -27,9 +27,8 @@ A data generator for creating synthetic "Subtractive Color Mixture" generation t
 ### 1. Clone and Setup Environment
 
 ```bash
-# Clone the repository
-git clone <your-repo-url>
-cd template-data-generator-3
+# Navigate to the generator directory
+cd O-17_color_subtraction_data_generator
 
 # Create virtual environment
 python3 -m venv venv
@@ -63,20 +62,17 @@ Generated data will be saved in `data/questions/{domain}_task/` directory, with 
 ## 📁 Project Structure
 
 ```
-template-data-generator-3/
-├── core/                          # ✅ Core framework code (DO NOT MODIFY)
-│   ├── __init__.py               # Export core classes and functions
-│   ├── base_generator.py         # Abstract base generator class
-│   ├── schemas.py                # Data models (TaskPair)
-│   ├── image_utils.py            # Image processing utilities
-│   ├── video_utils.py            # Video generation utilities
-│   └── output_writer.py          # File output utilities
-│
-├── src/                           # ⚠️ Your task code (NEEDS CUSTOMIZATION)
-│   ├── __init__.py               # Export task-related classes
-│   ├── config.py                 # Task configuration (TaskConfig)
-│   ├── generator.py             # Task generator (TaskGenerator)
-│   └── prompts.py               # Prompt and rubric templates
+O-17_color_subtraction_data_generator/
+├── core/                    # 🔧 Framework utilities
+│   ├── base_generator.py   # Abstract base class
+│   ├── schemas.py          # Pydantic models (TaskPair, etc.)
+│   ├── image_utils.py      # Image rendering helpers
+│   ├── video_utils.py      # MP4 video generation
+│   └── output_writer.py    # Standardized file output
+├── src/                     # 🎨 Color subtraction implementation
+│   ├── generator.py        # Subtractive color physics & animation
+│   ├── prompts.py          # Color subtraction prompt templates
+│   └── config.py           # Ball properties & subtraction parameters
 │
 ├── examples/
 │   └── generate.py               # Data generation entry script
@@ -117,12 +113,11 @@ template-data-generator-3/
 Each generated task contains the following files:
 
 ```
-data/questions/{domain}_task/{task_id}/
-├── first_frame.png      # Initial state image (REQUIRED)
-├── final_frame.png      # Target state image (OPTIONAL but recommended)
-├── prompt.txt           # Task prompt (REQUIRED)
-├── rubric.txt           # Scoring rubric (REQUIRED)
-└── ground_truth.mp4     # Solution video (OPTIONAL)
+data/questions/color_subtraction_task/color_subtraction_XXXX/
+├── first_frame.png      # Two colored balls at separate positions
+├── final_frame.png      # Single merged ball with subtractive color
+├── prompt.txt           # Color subtraction task instructions
+└── ground_truth.mp4     # Animation showing balls merging with inversion
 ```
 
 ### File Descriptions
@@ -135,9 +130,7 @@ data/questions/{domain}_task/{task_id}/
 
 ---
 
-## 🎨 Customization Guide
-
-To create your own task generator, you need to modify three files in the `src/` directory. Follow these steps:
+## ⚙️ Subtractive Color Algorithm
 
 ### Step 1: Configure Task Parameters (`src/config.py`)
 
@@ -298,22 +291,35 @@ def get_rubric(task_type: str = "default") -> str:
 
 ---
 
+**Unique Formula**: `mixed_color = 255 - normalize(color1 + color2)`
+
+### Step-by-Step Process:
+1. **Add RGB channels**: R₁+R₂, G₁+G₂, B₁+B₂ (like additive)
+2. **Normalize if needed**: Scale proportionally if any channel > 255
+3. **Invert result**: Subtract from 255 to create "subtractive" effect
+
+### Example Calculation:
+```
+Green + Salmon:  (100,150,75) + (200,120,90)
+Step 1 - Add:    (300, 270, 165)
+Step 2 - Normalize by 0.850: (255, 229, 140) 
+Step 3 - Subtract: 255 - (255,229,140) = (0, 26, 115) → Dark Blue
+```
+
 ## 💡 Usage Examples
 
-### Basic Usage
-
 ```bash
-# Generate 50 samples
+# Generate 50 color subtraction tasks
 python examples/generate.py --num-samples 50
 
-# Generate 100 samples, specify output directory
-python examples/generate.py --num-samples 100 --output data/my_dataset
+# Quick test with videos
+python examples/generate.py --num-samples 3 --seed 42
 
-# Use random seed for reproducibility
-python examples/generate.py --num-samples 50 --seed 42
-
-# Don't generate videos (faster)
+# Fast generation without videos
 python examples/generate.py --num-samples 100 --no-videos
+
+# Custom output directory
+python examples/generate.py --num-samples 10 --output data/my_subtractions
 ```
 
 ### View Help
